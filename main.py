@@ -58,6 +58,9 @@ def forward_pass(train_X, params_w, params_b, layers=[4, 5, 1], activate=['R', '
 
     return curr_act, activation_dict, output_dict
 
-
+def cross_entropy_loss(y_pred, train_Y):
+    num_samples = y_pred.shape[1]
+    cost = -1 / num_samples * (np.dot(train_Y, np.log(y_pred).T) + np.dot(1 - train_Y, np.log(1 - y_pred).T))
+    return np.squeeze(cost)
 
 
