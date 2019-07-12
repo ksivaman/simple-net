@@ -54,7 +54,7 @@ def forward_pass(train_X, params_w, params_b, layers=[4, 5, 1], activate=['R', '
         curr_act, curr_out = single_layer_forward_propagation(prev_act, curr_weight, curr_bias, activate[index])
 
         activation_dict["act" + str(idx)] = prev_act
-        output_dict["Z" + str(layer_idx)] = Z_curr_out
+        output_dict["out" + str(layer_idx)] = Z_curr_out
 
     return curr_act, activation_dict, output_dict
 
@@ -103,35 +103,47 @@ def one_layer_backward_pass(curr_grad, curr_weight, curr_bias, curr_out, prev_ac
 
     return d_prev_act, d_curr_weight, d_curr_bias
 
-def full_backward_propagation(Y_hat, Y, memory, params_values, nn_architecture):
-    grads_values = {}
+def backward_pass(y_pred, train_Y, activation_dict, output_dict, params_w, params_b, layers=[4, 5, 1], activate=['R', 'S']):
+
+    gradients = {}
+
+    num_samples = train_Y.shape[1]
+
+    train_Y = train_Y.reshape(y_pred.shape)    
+
+    #derivative of binary cross entropy function w.r.t. predictions
+    d_prev_act = - (np.divide(train_Y, y_pred) - np.divide(1 - train_Y, 1 - y_pred))
+
+    num_layers = len(layers) - 1
+    layer_num = list(np.range(num_layers) + 1).reverse
+
+    activate_ = activate.reverse()
+
+    for index, layer_num in enumerate(layer_num):
+
+        activation = activate_(index)
+
+        d_curr_act = d_prev_act
+
+        prev_act = activation_dict['act' + str(layer_num)]
+        curr_out = output_dict['out' + str(layer_num)]
+
+        curr_weight = params_w['weight' + str(layer_num)]
+        curr_bias = params_b['bias' + str(layer_num)]
+
+        d_prev_act, d_curr_weight, d_curr_bias = one_layer_backward_pass(d_curr_act, curr_weight, curr_bias, curr_out, prev_act, activate_[index])
+
+        gradients["d_weight" + str(layer_num)] = d_curr_weight
+        gradients["d_bias" + str(layer_num)] = d_curr_bias
     
-    # number of examples
-    m = Y.shape[1]
-    # a hack ensuring the same shape of the prediction vector and labels vector
-    Y = Y.reshape(Y_hat.shape)
-    
-    # initiation of gradient descent algorithm
-    dA_prev = - (np.divide(Y, Y_hat) - np.divide(1 - Y, 1 - Y_hat));
-    
-    for layer_idx_prev, layer in reversed(list(enumerate(nn_architecture))):
-        # we number network layers from 1
-        layer_idx_curr = layer_idx_prev + 1
-        # extraction of the activation function for the current layer
-        activ_function_curr = layer["activation"]
-        
-        dA_curr = dA_prev
-        
-        A_prev = memory["A" + str(layer_idx_prev)]
-        Z_curr = memory["Z" + str(layer_idx_curr)]
-        
-        W_curr = params_values["W" + str(layer_idx_curr)]
-        b_curr = params_values["b" + str(layer_idx_curr)]
-        
-        dA_prev, dW_curr, db_curr = single_layer_backward_propagation(
-            dA_curr, W_curr, b_curr, Z_curr, A_prev, activ_function_curr)
-        
-        grads_values["dW" + str(layer_idx_curr)] = dW_curr
-        grads_values["db" + str(layer_idx_curr)] = db_curr
-    
-    return grads_values
+    return gradients
+
+#update weights and biases using obtained gradients     
+def param_updates(params_w, params_b, gradients, layers=[4, 5, 1], lr):
+
+    for index in range(len(layers) - 1):
+        #gradient descent
+        params_w["weight" + str(index + 1)] -= lr * gradients["d_weight" + str(index + 1)]        
+        params_b["bias" + str(index + 1)] -= lr * gradients["d_bias" + str(index + 1)]
+
+    return params_values
