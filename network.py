@@ -139,7 +139,7 @@ def backward_pass(y_pred, train_Y, activation_dict, output_dict, params_w, param
     return gradients
 
 #update weights and biases using obtained gradients     
-def param_updates(params_w, params_b, gradients, layers=[4, 5, 1], lr):
+def param_updates(params_w, params_b, gradients, lr, layers=[4, 5, 1]):
 
     for index in range(len(layers) - 1):
         #gradient descent
