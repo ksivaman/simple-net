@@ -1,5 +1,30 @@
 import numpy as np
-# from train import train
+from train import train
+
+def train_val_split(X, Y, train_percent=0.8):
+
+    '''
+        Function takes in the training data as input and returns
+        a training validation split based on a given percentage.
+    '''
+
+    num_points = X.shape[0]
+
+    train_size = int(num_points * 100 * train_percent // 100)
+
+    inds = np.arange(num_points)
+    np.random.shuffle(inds)
+
+    train_inds = inds[:train_size]
+    val_inds = inds[train_size: ]
+
+    train_X = X[train_inds, :]
+    val_X = X[val_inds, :]
+
+    train_Y = Y[train_inds]
+    val_Y = Y[val_inds]
+
+    return train_X, train_Y, val_X, val_Y
 
 def parse_txt(fname, num_features=4, num_targets=1, num_points=1372):
     
@@ -28,12 +53,8 @@ def parse_txt(fname, num_features=4, num_targets=1, num_points=1372):
 
     return X, Y
 
-def train_val_split(train_X, train_Y, train_percent=0.8):
+X, Y = parse_txt('data/data_banknote_authentication.txt')
+train_X, train_Y, val_X, val_Y = train_val_split(X, Y)
 
-    '''
-        Function takes in the training data as input and returns
-        a training validation split based on a given percentage.
-    '''
-
-train_X, train_Y = parse_txt('data/data_banknote_authentication.txt')
+params_w, params_b = train(train_X.T, train_Y.T, 5, 0.001)
 

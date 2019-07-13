@@ -21,6 +21,7 @@ def init(layers=[4, 5, 1]):
     return params_w, params_b
 
 def one_layer_forward_pass(input_activations, weights, bias, activation='R'):
+
     output = np.dot(weights, input_activations) + bias
 
     if activation is 'R':
@@ -44,14 +45,12 @@ def forward_pass(train_X, params_w, params_b, layers=[4, 5, 1], activate=['R', '
     for index in range(num_layers):
 
         layer_index = index + 1
-
         prev_act = curr_act      
 
         curr_weight = params_w["weight" + str(layer_index)]
-
         curr_bias = params_b["bias" + str(layer_index)]
 
-        curr_act, curr_out = single_layer_forward_propagation(prev_act, curr_weight, curr_bias, activate[index])
+        curr_act, curr_out = one_layer_forward_pass(prev_act, curr_weight, curr_bias, activate[index])
 
         activation_dict["act" + str(idx)] = prev_act
         output_dict["out" + str(layer_idx)] = Z_curr_out
