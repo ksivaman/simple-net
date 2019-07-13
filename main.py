@@ -1,5 +1,5 @@
 import numpy as np
-from train import train
+from train import train, test
 
 def train_val_split(X, Y, train_percent=0.8):
 
@@ -53,8 +53,12 @@ def parse_txt(fname, num_features=4, num_targets=1, num_points=1372):
 
     return X, Y
 
+epochs = 200
+lr = 0.01
+
 X, Y = parse_txt('data/data_banknote_authentication.txt')
 train_X, train_Y, val_X, val_Y = train_val_split(X, Y)
 
-params_w, params_b = train(train_X.T, train_Y.T, 100, 0.005)
+params_w, params_b = train(train_X.T, train_Y.T, epochs, lr)
 
+test(val_X.T, val_Y.T)
