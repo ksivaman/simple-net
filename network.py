@@ -2,7 +2,7 @@ import numpy as np
 import activations
 
 '''
-    Gaussian initialization of weight matrices
+    Gaussian initialization of weight and bias matrices
 '''
 def init(layers=[4, 5, 1]):
     np.random.seed(42)
@@ -12,16 +12,16 @@ def init(layers=[4, 5, 1]):
 
     for index in range(len(layers)-1):
 
-        in_layer_size = index
-        out_layer_size = index + 1 #also a proxy for layer number
-        
-        params_w['weight' + str(out_layer_size)] = np.random.randn(out_layer_size, in_layer_size) * 0.1
-        params_b['bias' + str(out_layer_size)] = np.random.randn(out_layer_size, 1) * 0.1
-        
+        layer_num = index + 1
+        in_layer_size = layers[index]
+        out_layer_size = layers[index + 1]
+
+        params_w['weight' + str(layer_num)] = np.random.randn(out_layer_size, in_layer_size) * 0.1
+        params_b['bias' + str(layer_num)] = np.random.randn(out_layer_size, 1) * 0.1
+
     return params_w, params_b
 
 def one_layer_forward_pass(input_activations, weights, bias, activation='R'):
-
     output = np.dot(weights, input_activations) + bias
 
     if activation is 'R':
@@ -52,8 +52,8 @@ def forward_pass(train_X, params_w, params_b, layers=[4, 5, 1], activate=['R', '
 
         curr_act, curr_out = one_layer_forward_pass(prev_act, curr_weight, curr_bias, activate[index])
 
-        activation_dict["act" + str(idx)] = prev_act
-        output_dict["out" + str(layer_idx)] = Z_curr_out
+        activation_dict["act" + str(index)] = prev_act
+        output_dict["out" + str(layer_index)] = curr_out
 
     return curr_act, activation_dict, output_dict
 
@@ -73,10 +73,10 @@ def get_class_from_probs(probabilities):
 #accuracy of predictions (0 to 1)
 def accuracy_metric(y_pred, train_Y):
     y_pred_class = get_class_from_probs(y_pred)
-    return (Y_hat_ == Y).all(axis=0).mean()
+    return (y_pred_class == train_Y).all(axis=0).mean()
 
 #calculate gradients for one backward pass layer
-def one_layer_backward_pass(curr_grad, curr_weight, curr_bias, curr_out, prev_act, activate='R'):
+def one_layer_backward_pass(curr_grad, curr_weight, curr_bias, curr_out, prev_act, activation='R'):
     
     num = prev_act.shape[1]
 
@@ -106,31 +106,33 @@ def backward_pass(y_pred, train_Y, activation_dict, output_dict, params_w, param
 
     gradients = {}
 
-    num_samples = train_Y.shape[1]
+    num_samples = train_Y.shape[0]
 
-    train_Y = train_Y.reshape(y_pred.shape)    
+    train_Y = train_Y.reshape(y_pred.shape)
 
     #derivative of binary cross entropy function w.r.t. predictions
     d_prev_act = - (np.divide(train_Y, y_pred) - np.divide(1 - train_Y, 1 - y_pred))
 
     num_layers = len(layers) - 1
-    layer_num = list(np.range(num_layers) + 1).reverse
+    layer_num = [x + 1 for x in range(num_layers)]
+    layer_num.reverse()
 
-    activate_ = activate.reverse()
+    activate_ = activate
+    activate_.reverse()
 
     for index, layer_num in enumerate(layer_num):
 
-        activation = activate_(index)
+        activation = activate_[layer_num-1]
 
         d_curr_act = d_prev_act
 
-        prev_act = activation_dict['act' + str(layer_num)]
+        prev_act = activation_dict['act' + str(layer_num - 1)] #activations are one index behind
         curr_out = output_dict['out' + str(layer_num)]
 
         curr_weight = params_w['weight' + str(layer_num)]
         curr_bias = params_b['bias' + str(layer_num)]
 
-        d_prev_act, d_curr_weight, d_curr_bias = one_layer_backward_pass(d_curr_act, curr_weight, curr_bias, curr_out, prev_act, activate_[index])
+        d_prev_act, d_curr_weight, d_curr_bias = one_layer_backward_pass(d_curr_act, curr_weight, curr_bias, curr_out, prev_act, activation)
 
         gradients["d_weight" + str(layer_num)] = d_curr_weight
         gradients["d_bias" + str(layer_num)] = d_curr_bias
@@ -145,4 +147,4 @@ def param_updates(params_w, params_b, gradients, lr, layers=[4, 5, 1]):
         params_w["weight" + str(index + 1)] -= lr * gradients["d_weight" + str(index + 1)]        
         params_b["bias" + str(index + 1)] -= lr * gradients["d_bias" + str(index + 1)]
 
-    return params_values
+    return params_w, params_b

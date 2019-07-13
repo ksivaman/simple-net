@@ -1,9 +1,9 @@
 import numpy as np
 from network import *
 
-def train(train_X, train_Y, epochs, lr, layers=[4, 5, 1], activate=['R, S']):
+def train(train_X, train_Y, epochs, lr, layers=[4, 5, 1], activate=['R', 'S']):
     # initiation of neural net parameters
-    params_w, params_b = init()
+    params_w, params_b = init(layers)
 
     losses = []
     accuracies = []
@@ -23,8 +23,8 @@ def train(train_X, train_Y, epochs, lr, layers=[4, 5, 1], activate=['R, S']):
         gradients = backward_pass(y_pred, train_Y, activations, outputs, params_w, params_b)
 
         # updating model state
-        params_values = param_updates(params_w, params_b, gradients, lr)
+        params_w, params_b = param_updates(params_w, params_b, gradients, lr)
         
-        print('Loss for epoch {} : {}, accuracy is {}'.format())
+        print('Loss for epoch {} : {}, accuracy is {}'.format(i+1, loss, accuracy))
 
     return params_w, params_b

@@ -56,5 +56,5 @@ def parse_txt(fname, num_features=4, num_targets=1, num_points=1372):
 X, Y = parse_txt('data/data_banknote_authentication.txt')
 train_X, train_Y, val_X, val_Y = train_val_split(X, Y)
 
-params_w, params_b = train(train_X.T, train_Y.T, 5, 0.001)
+params_w, params_b = train(train_X.T, train_Y.T, 100, 0.005)
 
