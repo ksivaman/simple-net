@@ -1,7 +1,7 @@
 import numpy as np
-from network import backward_pass, param_updates, cross_entropy_loss, forward_pass, accuracy_metric
+from network import *
 
-def train(train_X, train_Y, nn_architecture, epochs, lr):
+def train(train_X, train_Y, epochs, lr, layers=[4, 5, 1], activate=['R, S']):
     # initiation of neural net parameters
     params_w, params_b = init()
 
@@ -11,7 +11,7 @@ def train(train_X, train_Y, nn_architecture, epochs, lr):
     # performing calculations for subsequent iterations
     for i in range(epochs):
         # step forward
-        y_pred, activations, outputs = forward_pass(X, params_values, nn_architecture)
+        y_pred, activations, outputs = forward_pass(train_X, params_w, params_b, layers, activate)
         
         # calculating metrics and saving them in history
         loss = cross_entropy_loss(y_pred, train_Y)
