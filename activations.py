@@ -16,5 +16,5 @@ def d_sigmoid(d_init, out):
 #derivate of a relu w.r.t. input
 def d_relu(d_init, out):
     d = np.array(d_init, copy = True)
-    d[out < 0] = 0.
+    d[out <= 0] = 0.
     return d

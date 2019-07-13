@@ -53,12 +53,14 @@ def parse_txt(fname, num_features=4, num_targets=1, num_points=1372):
 
     return X, Y
 
-epochs = 50
-lr = 0.005
+epochs = 100
+lr = 0.1
 
 X, Y = parse_txt('data/data_banknote_authentication.txt')
 train_X, train_Y, val_X, val_Y = train_val_split(X, Y)
 
 params_w, params_b = train(train_X.T, train_Y.T, epochs, lr)
 
-test(val_X.T, val_Y.T)
+#uncomment following line for testing the model
+
+# test(val_X.T, val_Y.T)
