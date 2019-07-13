@@ -53,8 +53,8 @@ def parse_txt(fname, num_features=4, num_targets=1, num_points=1372):
 
     return X, Y
 
-epochs = 200
-lr = 0.01
+epochs = 50
+lr = 0.005
 
 X, Y = parse_txt('data/data_banknote_authentication.txt')
 train_X, train_Y, val_X, val_Y = train_val_split(X, Y)

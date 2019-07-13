@@ -95,7 +95,7 @@ def one_layer_backward_pass(curr_grad, curr_weight, curr_bias, curr_out, prev_ac
     d_curr_weight = np.dot(d_curr_out, prev_act.T) / num #shape = (num_current_layer, num_prev_layer)
 
     #derivative of bias matrix
-    d_curr_bias = np.sum(d_curr_out, axis=1, keepdims=True)
+    d_curr_bias = np.sum(d_curr_out, axis=1, keepdims=True) / num
 
     #derivative of input activations from previous layer
     d_prev_act = np.dot(curr_weight.T, d_curr_out) #shape = (num_prev_layer, 1)
